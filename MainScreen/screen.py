@@ -3,7 +3,6 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from settings import *
-from screenhandler import ScreenHandler
 from algorithms import Algorithms
 from pdfclass import PDF
 import threading
@@ -18,6 +17,7 @@ class MainScreen(Frame):
         canvas.place(x=0,y=0)
         
         self.PDF_files = {}
+        self.included_files = {}
 
         self.load_elements(canvas)
 
@@ -49,6 +49,9 @@ class MainScreen(Frame):
 
         self.btn_Search = Button(self.buttons_frame, text="Search", command=lambda: self.search(), height=5, width=35, borderwidth=5)
         self.btn_Search.pack(pady=10)
+
+        self.btn_Reset = Button(canvas, text="Reset", command=lambda: self.revert(), height=2, width=15, borderwidth=5)
+        self.btn_Clear.place()
 
         self.buttons_frame.pack(padx=20, pady=0, side=RIGHT)
 
@@ -123,12 +126,16 @@ class MainScreen(Frame):
         self.prg_Progress = ttk.Progressbar(canvas, orient=HORIZONTAL, length=200, mode="determinate", )
         self.lbl_Progress = Label(text="Loading Test...")
 
-
     def browse_files(self):
         file_paths = filedialog.askopenfilenames(filetypes=[("PDF Files", "*.pdf")])
-        self.show_progress()
+        if len(file_paths) == 0:
+            return
+        self.load_files(file_paths)
+
+    def load_files(self, file_paths):
         i = 0
         j = len(file_paths)
+        self.show_progress()
         for file in file_paths:
             i += 1
             file_name = os.path.basename(file)
@@ -137,8 +144,14 @@ class MainScreen(Frame):
                 messagebox.showinfo(title="Duplicate Found", message=f"{file_name} is a duplicate. It will not be added on the list.")
                 continue
             self.PDF_files[file] = PDF(file, file_name)
-            self.lst_Files.insert(END, file)
         self.hide_progress()
+        self.update_list(self.PDF_files)
+        self.revert()
+
+    def update_list(self, files):
+        self.lst_Files.delete(0, END)
+        for file in files:
+            self.lst_Files.insert(END, file)
 
     def duplicate(self, file):
         if file in self.lst_Files.get(0, END):
@@ -146,28 +159,52 @@ class MainScreen(Frame):
         return False
 
     def clear_files(self):
-        self.change_text("")
+        self.change_text("Click a file to preview.")
         self.lst_Files.delete(0, END)
         self.PDF_files = {}
+        self.included_files = {}
+        self.txt_Include.delete(0, END)
+        self.txt_Exclude.delete(0, END)
+        self.hide_revert_button()
 
     def search(self):
         file_paths = self.lst_Files.get(0, END)
-
+        if len(file_paths) == 0:
+            messagebox.showwarning(title="Empty Search Files", message="There are no files to search.")
+            return
+        
         included = Algorithms.split_keywords(self.txt_Include.get())
         excluded = Algorithms.split_keywords(self.txt_Exclude.get())
+
+        if len(included) == 0 and len(excluded) == 0:
+            messagebox.showwarning(title="Empty Search Keyword", message="Please input at least one keyword to search.")
+            return
+
+        self.included_files = {}
 
         for file in file_paths:
             current_file = self.PDF_files[file]
             for word in excluded:
                 if Algorithms.search(current_file.content, word):
                     current_file.included = False
-                    return
+                    break
                 current_file.included = True
+
+            if not current_file.included:
+                continue
+
             for word in included:
                 if not Algorithms.search(current_file.content, word):
                     current_file.included = False
                     break
                 current_file.included = True
+
+            if current_file.included:
+                self.included_files[file] = current_file
+
+        messagebox.showinfo(title=f"Results", message=f"Search found {len(self.included_files)} result/s.")
+        self.update_list(self.included_files)
+        self.show_revert_button()
                 
     def open_pdf(self, event):
         get_selected = self.lst_Files.curselection()
@@ -201,3 +238,18 @@ class MainScreen(Frame):
     def hide_progress(self):
         self.prg_Progress.place_forget()
         self.lbl_Progress.place_forget()
+
+    def show_revert_button(self):
+        self.btn_Reset.place(x=840, y=240)
+
+    def hide_revert_button(self):
+        self.btn_Reset.place_forget()
+        
+    def revert(self):
+        self.set_all_included()
+        self.update_list(self.PDF_files)
+        self.hide_revert_button()
+        
+    def set_all_included(self):
+        for file in self.PDF_files:
+            self.PDF_files[file].included = True
