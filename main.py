@@ -12,7 +12,6 @@ class MainWindow():
         self.main_window.grid_rowconfigure(0, weight=1)
         self.main_window.grid_columnconfigure(0, weight=1)
 
-        # Add all your frames here.
         list_of_screens = [ms.MainScreen]
 
         self.screens = {}

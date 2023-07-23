@@ -1,6 +1,6 @@
 NUMBER_OF_CHARACTERS = 256
 
-class Algorithms():
+class StringMatching():
     def bad_table_init(pattern, length_of_pattern):
         bad_char_table = [length_of_pattern] * NUMBER_OF_CHARACTERS
 
@@ -42,14 +42,14 @@ class Algorithms():
         return good_suffix_table
         
     def search(text, pattern):
-        text = Algorithms.remove_spaces(text.lower())
+        text = StringManipulate.remove_spaces(text.lower())
         pattern = pattern.lower()
 
         length_of_text = len(text)
         length_of_pattern = len(pattern)
         
-        bad_char_table = Algorithms.bad_table_init(pattern, length_of_pattern)
-        good_suffix_table = Algorithms.good_suffix_init(pattern, length_of_pattern)
+        bad_char_table = StringMatching.bad_table_init(pattern, length_of_pattern)
+        good_suffix_table = StringMatching.good_suffix_init(pattern, length_of_pattern)
 
         shift = 0
 
@@ -71,11 +71,13 @@ class Algorithms():
 
         return False
     
+
+class StringManipulate():
     def split_keywords(string):
         if not string:
             return []
 
-        string = Algorithms.remove_spaces(string)
+        string = StringManipulate.remove_spaces(string)
         list = string.split(",")
             
         return list

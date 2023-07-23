@@ -1,6 +1,6 @@
 from tkinter import *
 
-TITLE = "Test Window"
+TITLE = "Resume Search"
 
 SCREEN_WIDTH = 1440
 SCREEN_HEIGHT = 900

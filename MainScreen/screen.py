@@ -3,7 +3,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from settings import *
-from algorithms import Algorithms
+from algorithms import StringMatching
+from algorithms import StringManipulate
 from pdfclass import PDF
 import threading
 import os 
@@ -173,8 +174,8 @@ class MainScreen(Frame):
             messagebox.showwarning(title="Empty Search Files", message="There are no files to search.")
             return
         
-        included = Algorithms.split_keywords(self.txt_Include.get())
-        excluded = Algorithms.split_keywords(self.txt_Exclude.get())
+        included = StringManipulate.split_keywords(self.txt_Include.get())
+        excluded = StringManipulate.split_keywords(self.txt_Exclude.get())
 
         if len(included) == 0 and len(excluded) == 0:
             messagebox.showwarning(title="Empty Search Keyword", message="Please input at least one keyword to search.")
@@ -185,7 +186,7 @@ class MainScreen(Frame):
         for file in file_paths:
             current_file = self.PDF_files[file]
             for word in excluded:
-                if Algorithms.search(current_file.content, word):
+                if StringMatching.search(current_file.content, word):
                     current_file.included = False
                     break
                 current_file.included = True
@@ -194,7 +195,7 @@ class MainScreen(Frame):
                 continue
 
             for word in included:
-                if not Algorithms.search(current_file.content, word):
+                if not StringMatching.search(current_file.content, word):
                     current_file.included = False
                     break
                 current_file.included = True
