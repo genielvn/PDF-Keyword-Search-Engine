@@ -27,7 +27,6 @@ class App(Tk):
         self.geometry('%dx%d+%d+%d' % (WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_X, WINDOW_Y))
         
         self.window = MainWindow(self)
-
         self.iconphoto(True, PhotoImage(file=FILE_ICON))
 
         self.resizable(0,0)
@@ -35,6 +34,7 @@ class App(Tk):
 
 try:
     App()
+    print("exited")
 except Exception as e:
     import ctypes
     ctypes.windll.user32.MessageBoxW(0, f"An exception has occured. \n\nException:\n{repr(e)}\n{str(e)}\n\nCheck the traceback.txt for more details.", "Error", 0x10)

@@ -54,20 +54,20 @@ class StringMatching():
         shift = 0
 
         while (shift <= length_of_text - length_of_pattern):
-            current_index = length_of_pattern - 1
+            pattern_index = length_of_pattern - 1
             total_match = 0
 
-            while current_index >= 0 and pattern[current_index] == text[shift + current_index]:
-                current_index -= 1
+            while pattern_index >= 0 and pattern[pattern_index] == text[shift + pattern_index]:
+                pattern_index -= 1
                 total_match += 1
 
-            if current_index < 0:
+            if pattern_index < 0:
                 return True
             
-            if ord(text[shift + current_index]) > 256:
+            if ord(text[shift + pattern_index]) > 256:
                 shift += 1
                 continue
-            shift += max(good_suffix_table[current_index + 1], bad_char_table[ord(text[shift + current_index])])
+            shift += max(good_suffix_table[pattern_index + 1], bad_char_table[ord(text[shift + pattern_index])])
 
         return False
     

@@ -1,16 +1,6 @@
 Traceback (most recent call last):
-  File "D:\win10\Documents\School Stuff\CS\DAAProject/main.py", line 38, in <module>
+  File "D:\win10\Documents\School Stuff\CS\DAAProject/main.py", line 37, in <module>
     App()
   File "D:\win10\Documents\School Stuff\CS\DAAProject/main.py", line 30, in __init__
-    self.window = MainWindow(self)
-  File "D:\win10\Documents\School Stuff\CS\DAAProject/main.py", line 20, in __init__
-    ScreenHandler.load_screens(list_of_screens, self)
-  File "D:\win10\Documents\School Stuff\CS\DAAProject\screenhandler.py", line 8, in load_screens
-    frame = screen(main.main_window, main)
-  File "D:\win10\Documents\School Stuff\CS\DAAProject\MainScreen\screen.py", line 22, in __init__
-    self.load_elements(canvas)
-  File "D:\win10\Documents\School Stuff\CS\DAAProject\MainScreen\screen.py", line 38, in load_elements
-    self.listbox_frame.pack(x=0, pady=0, side=TOP)
-  File "D:\DevTools\lib\tkinter\__init__.py", line 2425, in pack_configure
-    self.tk.call(
-_tkinter.TclError: bad option "-x": must be -after, -anchor, -before, -expand, -fill, -in, -ipadx, -ipady, -padx, -pady, or -side
+    i = 1/0
+ZeroDivisionError: division by zero

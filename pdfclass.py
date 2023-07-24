@@ -9,6 +9,7 @@ class PDF():
         self.content = self.convert_to_text(self.file_path)
 
         self.included = True
+        self.duplicate = 0
 
     def convert_to_text(self, file_path):
         pdf_file = open(file_path, 'rb')
