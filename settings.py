@@ -1,4 +1,3 @@
-from tkinter import *
 
 TITLE = "Resume Search"
 

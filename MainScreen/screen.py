@@ -1,51 +1,40 @@
 from tkinter import * 
-from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
-from settings import *
+from tkinter import font
 from algorithms import StringMatching
 from algorithms import StringManipulate
 from pdfclass import PDF
+from settings import *
+import customtkinter as ctk
 import threading
-import os 
+import os
 
-class MainScreen(Frame):
-    def __init__(self, parent, main):
-        Frame.__init__(self, parent)
+class MainFrame(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
 
-        self.main = main
-        canvas = Canvas(self, height=WINDOW_HEIGHT, width=WINDOW_WIDTH, bd=0, highlightthickness=0, relief="ridge")
-        canvas.place(x=0,y=0)
-        
+        self.master = master
+
         self.PDF_files = {}
         self.included_files = {}
 
-        self.load_elements(canvas)
+        self.load_elements() 
 
-    def load_elements(self, canvas):
-        self.txtbox_frame = Frame(canvas)
-
-        self.txt_Content = Text(self.txtbox_frame, width=52, height=35)
-        self.txt_Content.insert(END, "Click a file to preview.")
-        self.txt_Content.config(state=DISABLED)
-        self.scrbr_Content = Scrollbar(self.txtbox_frame)
-
-        self.txt_Content.config(yscrollcommand = self.scrbr_Content.set)
-        self.scrbr_Content.config(command=self.txt_Content.yview)
-
-        self.txt_Content.pack(side=LEFT)
-        self.scrbr_Content.pack(side=RIGHT, fill=Y)
-
-        self.txtbox_frame.pack(padx=10, side=LEFT)
+    def load_elements(self):
+        self.txt_Content = ctk.CTkTextbox(master=self.master, width=400, height=570)
+        self.txt_Content.insert("end", "Click a file to preview.")
+        self.txt_Content.configure(state="disabled")
+        self.txt_Content.place(x=10, y=15)
 
         # ==========
+        self.listbox_frame = Frame(self.master)
         
-        self.listbox_frame = Frame(canvas)
-
-        self.lst_Files = Listbox(self.listbox_frame, selectmode=SINGLE, width=85, height=18)
+        listbox_font = font.Font(size=15)
+        self.lst_Files = Listbox(self.listbox_frame, width=49, height=13, selectmode=SINGLE, background="#1e1e1e", foreground="white", borderwidth=0, highlightthickness=0, font=listbox_font)
         self.lst_Files.bind('<Double-1>', self.open_pdf)
         self.lst_Files.bind('<<ListboxSelect>>', self.show_text)
-        self.lst_Files.pack(padx=5, pady=10, side=LEFT)
+        self.lst_Files.pack(side=LEFT, fill=Y)
 
         self.scrbr_Files = Scrollbar(self.listbox_frame)
         self.scrbr_Files.pack(side=RIGHT, fill=Y)
@@ -53,80 +42,49 @@ class MainScreen(Frame):
         self.lst_Files.config(yscrollcommand = self.scrbr_Files.set)
         self.scrbr_Files.config(command=self.lst_Files.yview)
 
-        self.listbox_frame.pack(padx=0, pady=0, side=TOP)
+        self.listbox_frame.place(x=420, y=15)
 
-        # ===========
+        # ==========
+        
+        self.btn_Browse = ctk.CTkButton(master=self.master, text="Add/Upload", command=lambda: threading.Thread(target=self.browse_files()).start, width=220, height=55)
+        self.btn_Browse.place(x=760, y=340)
 
-        self.buttons_frame = Frame(canvas)
+        self.btn_Clear = ctk.CTkButton(master=self.master, text="Clear", command=lambda: self.clear_files(), width=220, height=60)
+        self.btn_Clear.place(x=760, y=405)
 
-        self.btn_Browse = Button(self.buttons_frame, text="Add/Upload", command=lambda: threading.Thread(target=self.browse_files()).start, height=3, width=35, borderwidth=5)
-        self.btn_Browse.pack()
+        self.btn_Search = ctk.CTkButton(master=self.master, text="Search", command=lambda: self.search(), width=220, height=90)
+        self.btn_Search.place(x=760, y=480)
 
-        self.btn_Clear = Button(self.buttons_frame, text="Clear", command=lambda: self.clear_files(), height=3, width=35, borderwidth=5)
-        self.btn_Clear.pack(pady=20)
-
-        self.btn_Search = Button(self.buttons_frame, text="Search", command=lambda: self.search(), height=5, width=35, borderwidth=5)
-        self.btn_Search.pack(pady=10)
-
-        self.btn_Reset = Button(canvas, text="Reset", command=lambda: self.revert(), height=2, width=15, borderwidth=5)
-        self.btn_Clear.place()
-
-        self.buttons_frame.pack(padx=20, pady=0, side=RIGHT)
+        self.btn_Reset = ctk.CTkButton(master=self.master, text="Reset", command=lambda: self.revert())
 
         # ==========
 
-        self.search_include_frame = Frame(canvas)
+        self.lbl_Keywords = ctk.CTkLabel(master=self.master, text="Search Keywords:", anchor=W)
+        self.lbl_Keywords.place(x=420, y=340)
 
-        self.lbl_Include = Label(self.search_include_frame, text="Search Keywords:", anchor=W)
-        self.lbl_Include.pack(anchor=W)
+        self.txt_Keywords = ctk.CTkEntry(master=self.master, width=320)
+        self.txt_Keywords.place(x=420, y=370)
 
-        self.txt_Include = Entry(self.search_include_frame, width=40)
-        self.txt_Include.pack(pady=10)
+        self.lbl_Keywords_bool = ctk.CTkLabel(master=self.master, text="Booleans:", anchor=W)
+        self.lbl_Keywords_bool.place(x=420, y=420)
 
-        self.lbl_Include_bool = Label(self.search_include_frame, text="Booleans: ", anchor=W)
-        self.lbl_Include_bool.pack(anchor=W)
+        self.bool_Keywords = IntVar()
+        self.rdbtn_Keywords_AND = ctk.CTkRadioButton(master=self.master, text="AND", variable=self.bool_Keywords, value=0)
+        self.rdbtn_Keywords_OR = ctk.CTkRadioButton(master=self.master, text="OR", variable=self.bool_Keywords, value=1)
+        self.rdbtn_Keywords_AND.place(x=420, y=450)
+        self.rdbtn_Keywords_OR.place(x=420, y=480)
 
-        self.bool_Include = IntVar()
-        self.rdbtn_Include_AND = Radiobutton(self.search_include_frame, text="AND", variable=self.bool_Include, value=0)
-        self.rdbtn_Include_OR = Radiobutton(self.search_include_frame, text="OR", variable=self.bool_Include, value=1)
-        self.rdbtn_Include_AND.pack(anchor=W)
-        self.rdbtn_Include_OR.pack(anchor=W)
+        self.lbl_Count = ctk.CTkLabel(master=self.master, text=f"{len(self.included_files)}/{len(self.PDF_files)} shown.", anchor=W)
+        self.lbl_Count.place(x=420, y=520)
 
-        self.lbl_Note = Label(self.search_include_frame, text="Multiple keywords must be separated \nwith commas.", anchor=W)
-        self.lbl_Note.pack(side=BOTTOM, pady=15)
-
-        self.lbl_Count = Label(self.search_include_frame, text=f"{len(self.included_files)}/{len(self.PDF_files)} shown.", anchor=W)
-        self.lbl_Count.pack(side=BOTTOM, pady=15, anchor=W)
-
-        self.search_include_frame.pack(pady=15, side=TOP)
-
+        self.lbl_Note = ctk.CTkLabel(master=self.master, text="* Multiple keywords must be separated with commas.", anchor=W)
+        self.lbl_Note.place(x=420, y=550)
 
         # ==========
 
-        self.prg_Progress = ttk.Progressbar(canvas, orient=HORIZONTAL, length=200, mode="determinate", )
-        self.lbl_Progress = Label(text="Loading Test...")
+        self.prg_Progress = ctk.CTkProgressBar(master=self.master, width=200, mode="determinate")
+        self.lbl_Progress = ctk.CTkLabel(master=self.master, text="Loading Test...")
 
-        # self.search_exclude_frame = Frame(canvas)
-
-        # self.lbl_Exclude = Label(self.search_exclude_frame, text="Exclude the following keywords:", anchor=W)
-        # self.lbl_Exclude.pack(pady=10)
-
-        # self.txt_Exclude = Entry(self.search_exclude_frame, width=40)
-        # self.txt_Exclude.pack()
-
-        # self.search_exclude_frame.pack(pady=10, side=TOP)
-
-        # self.search_exclude_bool_frame = Frame(canvas)
-
-        # self.bool_Exclude = IntVar()
-        # self.rdbtn_Exclude_AND = Radiobutton(self.search_exclude_bool_frame, text="AND", variable=self.bool_Exclude, value=0)
-        # self.rdbtn_exclude_OR = Radiobutton(self.search_exclude_bool_frame, text="OR", variable=self.bool_Exclude, value=1)
-        # self.rdbtn_Exclude_AND.pack(side=LEFT)
-        # self.rdbtn_exclude_OR.pack(side=LEFT)
-
-        # self.search_exclude_bool_frame.pack(side=TOP)
-
-        # ==========
 
     def browse_files(self):
         file_paths = filedialog.askopenfilenames(filetypes=[("PDF Files", "*.pdf")])
@@ -142,7 +100,8 @@ class MainScreen(Frame):
             i += 1
             file_name = os.path.basename(file)
             name_only, ext = os.path.splitext(file_name)
-            self.update_progress(f"Loading {file_name}", (i/j)*100)
+
+            self.update_progress(f"Loading {file_name}", (i/j))
             if self.duplicate(name_only):
                 res = messagebox.askquestion(title="Duplicate Found", message=f"{file_name} is a duplicate. Do you wish to add it on the list?", icon='warning')
                 if res == 'no':
@@ -153,13 +112,20 @@ class MainScreen(Frame):
         self.included_files = self.PDF_files
         self.hide_progress()
         self.update_list(self.PDF_files)
-        self.revert()
+        # self.revert()
+
+    def open_pdf(self, event):
+        get_selected = self.lst_Files.curselection()
+        file_name = self.lst_Files.get(get_selected)
+        current_PDF = self.PDF_files[file_name]
+        get_path = current_PDF.file_path
+        os.startfile(get_path)
 
     def update_list(self, files):
         self.lst_Files.delete(0, END)
         for file in files:
             self.lst_Files.insert(END, file)
-        self.lbl_Count["text"] = f"{len(self.included_files)}/{len(self.PDF_files)} shown."
+        self.lbl_Count.configure(text= f"{len(self.included_files)}/{len(self.PDF_files)} shown.")
 
     def duplicate(self, file):
         if file in self.lst_Files.get(0, END):
@@ -178,10 +144,8 @@ class MainScreen(Frame):
         self.lst_Files.delete(0, END)
         self.PDF_files = {}
         self.included_files = {}
-        self.txt_Include.delete(0, END)
-        self.lbl_Count["text"] = f"{len(self.included_files)}/{len(self.PDF_files)} shown."
-
-        # self.txt_Exclude.delete(0, END)
+        self.txt_Keywords.delete(0, END)
+        self.lbl_Count.configure(text= f"{len(self.included_files)}/{len(self.PDF_files)} shown.")
         self.hide_revert_button()
 
     def search(self):
@@ -190,8 +154,7 @@ class MainScreen(Frame):
             messagebox.showwarning(title="Empty Search Files", message="There are no files to search. Please upload a file or click the reset button after search.")
             return
         
-        keywords = StringManipulate.split_keywords(self.txt_Include.get())
-        # excluded = StringManipulate.split_keywords(self.txt_Exclude.get())
+        keywords = StringManipulate.split_keywords(self.txt_Keywords.get())
 
         if len(keywords) == 0:
             messagebox.showwarning(title="Empty Search Keyword", message="Please input at least one keyword to search.")
@@ -210,7 +173,7 @@ class MainScreen(Frame):
 
             current_file.included = True
             
-            if self.bool_Include.get() == 0:
+            if self.bool_Keywords.get() == 0:
                 for word in keywords:
                     if not StringMatching.search(current_file.content, word):
                         current_file.included = False
@@ -227,33 +190,10 @@ class MainScreen(Frame):
             if current_file.included:
                 self.included_files[file] = current_file
 
-            # AND_indicator = True if self.bool_Include.get() == 0 else False
-
-            # for word in keywords:
-            #     current_file.included = False
-                
-            #     self.update_progress(f"Searching {word} in {current_file.file_name}", (i/j)*100)
-            #     keyword_found = StringMatching.search(current_file.content, word)
-            #     if AND_indicator and not keyword_found:
-            #         current_file.included = False
-            #         break
-            #     elif not AND_indicator and keyword_found:
-            #         current_file.included = True
-            #         break
-
-            #     current_file.included = True
-
         messagebox.showinfo(title=f"Results", message=f"Search found {len(self.included_files)} result/s.")
         self.update_list(self.included_files)
         self.hide_progress()
         self.show_revert_button()
-                
-    def open_pdf(self, event):
-        get_selected = self.lst_Files.curselection()
-        file_name = self.lst_Files.get(get_selected)
-        current_PDF = self.PDF_files[file_name]
-        get_path = current_PDF.file_path
-        os.startfile(get_path)
 
     def show_text(self, event):
         get_selected = self.lst_Files.curselection()
@@ -263,28 +203,28 @@ class MainScreen(Frame):
         text = object.get_text()
 
         self.change_text(text)
-    
+
     def change_text(self, text):
-        self.txt_Content.config(state=NORMAL)
-        self.txt_Content.delete('1.0', END)
-        self.txt_Content.insert(END, text)
-        self.txt_Content.config(state=DISABLED)
-    
+        self.txt_Content.configure(state="normal")
+        self.txt_Content.delete('1.0', "end")
+        self.txt_Content.insert("end", text)
+        self.txt_Content.configure(state="disabled")
+
     def show_progress(self):
         self.prg_Progress.place(x=WINDOW_WIDTH/2, y=WINDOW_HEIGHT/2, anchor=CENTER)
         self.lbl_Progress.place(x=WINDOW_WIDTH/2, y=(WINDOW_HEIGHT/2)+30, anchor=CENTER)
 
     def update_progress(self, text, percentage):
-        self.prg_Progress["value"] = percentage
-        self.lbl_Progress["text"] = text
-        self.main.main_window.update_idletasks()
+        self.prg_Progress.set(percentage)
+        self.lbl_Progress.configure(text=text)
+        self.master.update_idletasks()
 
     def hide_progress(self):
         self.prg_Progress.place_forget()
         self.lbl_Progress.place_forget()
 
     def show_revert_button(self):
-        self.btn_Reset.place(x=840, y=240)
+        self.btn_Reset.place(x=830, y=290)
 
     def hide_revert_button(self):
         self.btn_Reset.place_forget()
@@ -294,8 +234,9 @@ class MainScreen(Frame):
         self.set_all_included()
         self.update_list(self.PDF_files)
         self.hide_revert_button()
-        self.lbl_Count["text"] = f"{len(self.included_files)}/{len(self.PDF_files)} shown."
-        
+        self.lbl_Count.configure(text= f"{len(self.included_files)}/{len(self.PDF_files)} shown.")
+
     def set_all_included(self):
         for file in self.PDF_files:
             self.PDF_files[file].included = True
+
