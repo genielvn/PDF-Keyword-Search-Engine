@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "D:\win10\Documents\School Stuff\CS\DAAProject/main.py", line 37, in <module>
-    App()
-  File "D:\win10\Documents\School Stuff\CS\DAAProject/main.py", line 30, in __init__
-    i = 1/0
-ZeroDivisionError: division by zero

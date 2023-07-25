@@ -181,7 +181,7 @@ class MainFrame(ctk.CTkFrame):
                     current_file.included = True
             else:
                 for word in keywords:
-                    self.update_progress(f"Searching {word} in {current_file.file_name}", (i/j)*100)
+                    self.update_progress(f"Searching {word} in {current_file.file_name}", (i/j))
                     if StringMatching.search(current_file.content, word):
                         current_file.included = True
                         break
@@ -224,7 +224,7 @@ class MainFrame(ctk.CTkFrame):
         self.lbl_Progress.place_forget()
 
     def show_revert_button(self):
-        self.btn_Reset.place(x=830, y=290)
+        self.btn_Reset.place(x=810, y=290)
 
     def hide_revert_button(self):
         self.btn_Reset.place_forget()
