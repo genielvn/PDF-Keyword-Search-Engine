@@ -1,5 +1,5 @@
 
-TITLE = "Resume Search"
+TITLE = "PDF Keyword Search"
 
 SCREEN_WIDTH = 1440
 SCREEN_HEIGHT = 900
