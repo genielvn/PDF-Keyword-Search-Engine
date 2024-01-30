@@ -5,3 +5,6 @@ debug.log
 traceback.txt
 /venv/
 .vscode
+/build
+/dist
+main.spec
