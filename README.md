@@ -29,4 +29,3 @@ python main.py
 This project has been made in partial fulfillment of the course requirement in Design and Analysis of Algorithms. I would like to say thank you to my professor for teaching us the lessons.
 
 ---
-[<img src="./Photos/sp.png" alt="smilie pop" width="150"/>](https://www.youtube.com/c/SmiliePop)[<img src="./Photos/lezzthanthree.png" alt="lezzthanthree" width="150"/>](https://reddit.com/user/lezzthanthree)
